@@ -46,7 +46,7 @@ npx cypress run
 $env:PERCY_TOKEN="web_673afcf23af14031fd7eb66032b1f4adaa7eb5edfa9da63f16578ae528b284ee"
 
 # Run specific Percy test
-npx percy exec -- cypress run --spec "cypress/e2e/daily-test/argos/contact-us-argos.cy.js"
+npx percy exec -- cypress run --spec "cypress/e2e/daily-test/argos/single-blog-1-argos.cy.js"
 
 # Run all daily tests with Percy
 npx percy exec -- cypress run --spec "cypress/e2e/daily-test/argos/*"

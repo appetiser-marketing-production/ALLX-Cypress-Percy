@@ -24,14 +24,14 @@ describe('Percy Visual Test for Single Blog', () => {
                     cy.viewport(viewport.width, viewport.height);
                     cy.visit(page.url);
                     cy.get('body').should('be.visible');
-                    cy.wait(2000);
+                    cy.wait(1000);
                 });
 
                 it(`should take screenshots on ${page.name}`, () => {
                     const selectors = [
                         '.infinite-single-article-head',
                         '.infinite-single-article-thumbnail.infinite-media-image',
-                        '.infinite-single-article-content',
+                        '.infinite-single-article-content img',
                         '#single-social-sharex',
                         '.saboxplugin-wrap',
                         '#blog-bottom-case-study'
@@ -50,8 +50,8 @@ describe('Percy Visual Test for Single Blog', () => {
 
                                             cy.wrap($el)
                                                 .scrollIntoView({ duration: 1000 })
-                                                .should('be.visible')
-                                                .wait(1000);
+                                                .wait(1000)
+                                                .should('be.visible');
                                         } else {
                                             cy.log(`Skipping element ${selector} at index ${elIndex} due to height: ${elHeight} or opacity: ${elOpacity}`);
                                         }
@@ -69,7 +69,8 @@ describe('Percy Visual Test for Single Blog', () => {
                         percyCSS: `
                             #hubspot-messages-iframe-container,
                             .call_cta.icon_phone,
-                            .CampaignType--slide{
+                            .CampaignType--slide,
+                            .infinite-single-article-content > *:not(.infinite-single-article-content > div) {
                                 display: none !important;
                             }
                             *, *::before, *::after {
@@ -85,7 +86,3 @@ describe('Percy Visual Test for Single Blog', () => {
         });
     });
 });
-
-
-
-

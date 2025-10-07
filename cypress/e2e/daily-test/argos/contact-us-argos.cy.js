@@ -40,7 +40,7 @@ describe('Percy Visual Test for Contact Us', () => {
                         </style>
                     `;
                     cy.get("head").invoke("append", disableAnimations);
-                    cy.wait(2000);
+                    cy.wait(1000);
 
                     cy.get('body').then($body => {
                         if ($body.find('#hubspot-messages-iframe-container').length) {
@@ -64,8 +64,8 @@ describe('Percy Visual Test for Contact Us', () => {
                             if (elHeight > 0 && elOpacity !== '0') {
                                 cy.wrap($el)
                                     .scrollIntoView({ duration: 1000 })
-                                    .should('be.visible')
-                                    .wait(1000);
+                                    .wait(1000)
+                                    .should('be.visible');
                             } else {
                                 cy.log(`Skipping element at index ${index} due to height: ${elHeight} or opacity: ${elOpacity}`);
                             }
@@ -73,7 +73,7 @@ describe('Percy Visual Test for Contact Us', () => {
 
                     cy.get('#product_strategist--slider_forcefullwidth')
                         .scrollIntoView({ duration: 1000 })
-                        .wait(2000)
+                        .wait(1000)
                         .should('be.visible');
 
                     cy.scrollTo('top');

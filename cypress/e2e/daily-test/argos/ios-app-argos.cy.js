@@ -24,7 +24,7 @@ describe('Percy Visual Test for IOS App', () => {
                     cy.viewport(viewport.width, viewport.height);
                     cy.visit(page.url);
                     cy.get('.gdlr-core-page-builder-body').should('be.visible');
-                    cy.wait(2000);
+                    cy.wait(1000);
                 });
 
                 it(`should take screenshots on ${page.name}`, () => {
@@ -39,8 +39,8 @@ describe('Percy Visual Test for IOS App', () => {
                             if (elHeight > 0 && elOpacity !== '0') {
                                 cy.wrap($el)
                                     .scrollIntoView({ duration: 1000 })
-                                    .should('be.visible')
-                                    .wait(1000);
+                                    .wait(1000)
+                                    .should('be.visible');
                             } else {
                                 cy.log(`Skipping element at index ${index} due to height: ${elHeight} or opacity: ${elOpacity}`);
                             }
