@@ -9,7 +9,7 @@ describe('Percy Visual Test for Contact Us', () => {
     ];
 
     const viewports = [
-        { name: 'Desktop', width: 1920, height: 1080},
+        { name: 'Desktop', width: 1920, height: 1080 },
         { name: 'Tablet', width: 768, height: 1024 },
         { name: 'Mobile', width: 375, height: 667 }
     ];
@@ -54,35 +54,51 @@ describe('Percy Visual Test for Contact Us', () => {
 
                 it(`should take screenshots on ${page.name}`, () => {
                     const selector = '.gdlr-core-page-builder-body .gdlr-core-pbf-wrapper';
-                    
-                    // First, scroll through all visible wrapper elements
+
                     cy.get(selector)
-                        .filter(':visible') // First-pass filter for basic visibility
+                        .filter(':visible')
                         .each(($el, index) => {
-                            // --- KEY CHANGE: Add a robust check for height and opacity ---
-                            // We use the element's jQuery methods to get its computed CSS properties.
                             const elHeight = $el.height();
                             const elOpacity = $el.css('opacity');
 
-                            // Only proceed if the element has a height and is not transparent.
                             if (elHeight > 0 && elOpacity !== '0') {
                                 cy.wrap($el)
                                     .scrollIntoView({ duration: 1000 })
                                     .should('be.visible')
                                     .wait(1000);
                             } else {
-                                // (Optional) This log helps you see which elements are being skipped and why.
-                                // You can view it in the Cypress Test Runner for debugging.
                                 cy.log(`Skipping element at index ${index} due to height: ${elHeight} or opacity: ${elOpacity}`);
                             }
                         });
-                    
-                    // After scrolling through all elements, take a Percy snapshot
-                    cy.percySnapshot(`${page.name}`, {
-                        widths: [viewport.width]
+
+                    cy.get('#product_strategist--slider_forcefullwidth')
+                        .scrollIntoView({ duration: 1000 })
+                        .wait(2000)
+                        .should('be.visible');
+
+                    cy.scrollTo('top');
+                    cy.percySnapshot(`${page.name} - ${viewport.name} - ${viewport.width}px`, {
+                        widths: [viewport.width],
+                        minHeight: 1000,
+                        percyCSS: `
+                            #hubspot-messages-iframe-container,
+                            .call_cta.icon_phone {
+                                display: none !important;
+                            }
+                            *, *::before, *::after {
+                                animation-duration: 0s !important;
+                                animation-delay: 0s !important;
+                                transition-duration: 0s !important;
+                                transition-delay: 0s !important;
+                            }
+                        `
                     });
                 });
             });
         });
     });
 });
+
+
+
+

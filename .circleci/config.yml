@@ -15,7 +15,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "@here \n:zap: Start: Argos Cypress Testing in Appetiser site."
+                    "text": "@here \n:zap: Start: Visual Testing in Appetiser site."
                   }
                 },
                 {
@@ -57,7 +57,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "@here \n🚧 Running: Argos Cypress tests are now executing."
+                    "text": "@here \n🚧 Running: Visual Testing in Appetiser site."
                   }
                 },
                 {
@@ -66,8 +66,10 @@ jobs:
               ]
             }
       - run:
-          name: Run Cypress tests 
-          command: npx cypress run --runner-ui --spec "cypress/e2e/daily-test/*/*"
+          name: Run Cypress tests with Percy
+          env:
+            PERCY_TOKEN: "web_673afcf23af14031fd7eb66032b1f4adaa7eb5edfa9da63f16578ae528b284ee"
+          command: npx percy exec -- cypress run --spec "cypress/e2e/daily-test/*/*"
       - slack/notify:
           event: pass
           custom: |
@@ -77,7 +79,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "@here \n✅ Success: ArgosCypress Testing in Appetiser site."
+                    "text": "@here \n✅ Success: Percy Visual Testing in Appetiser site."
                   }
                 },
                 {
@@ -87,11 +89,11 @@ jobs:
                       "type": "button",
                       "text": {
                         "type": "plain_text",
-                        "text": "Argos Visual Testing Result",
+                        "text": "Percy Visual Testing Result",
                         "emoji": true
                       },
-                      "value": "argos_url",
-                      "url": "https://app.argos-ci.com/appetiser/ALLX-Cypress",
+                      "value": "percy_url",
+                      "url": "https://percy.io/faddbeae/web/appetiser-cypress-2aa71831",
                       "action_id": "button-action"
                     }
                   ]
@@ -108,7 +110,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "@here \n❌ Failed: Argos Cypress Testing in Appetiser site."
+                    "text": "@here \n❌ Failed: Percy Cypress Testing in Appetiser site."
                   }
                 },
                 {
@@ -118,11 +120,11 @@ jobs:
                       "type": "button",
                       "text": {
                         "type": "plain_text",
-                        "text": "Argos Visual Testing Result",
+                        "text": "Percy Visual Testing Result",
                         "emoji": true
                       },
-                      "value": "argos_url",
-                      "url": "https://app.argos-ci.com/appetiser/ALLX-Cypress-Argos",
+                      "value": "percy_url",
+                      "url": "https://percy.io/faddbeae/web/appetiser-cypress-2aa71831",
                       "action_id": "button-action"
                     }
                   ]
