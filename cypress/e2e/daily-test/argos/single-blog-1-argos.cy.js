@@ -1,0 +1,99 @@
+import '@percy/cypress';
+
+describe('Percy Visual Test for Single Blog', () => {
+    // This ignores uncaught exceptions from the application, preventing them from failing the test.
+    Cypress.on('uncaught:exception', () => false);
+
+    const pagesToTest = [
+        { name: '35 Tech Startup Ideas That Sell in 2025', url: 'https://appetiser.com.au/blog/tech-startups-ideas/' }
+    ];
+
+    const viewports = [
+        { name: 'Desktop', width: 1920, height: 1080},
+        { name: 'Tablet', width: 768, height: 1024 },
+        { name: 'Mobile', width: 375, height: 667 }
+    ];
+
+    pagesToTest.forEach((page) => {
+        viewports.forEach((viewport) => {
+            context(`Visual Test - ${page.name} - ${viewport.name} (${viewport.width}x${viewport.height})`, () => {
+
+                beforeEach(() => {
+                    cy.intercept('https://www.google-analytics.com/**', { statusCode: 204 });
+                    cy.intercept('https://www.googletagmanager.com/**', { statusCode: 204 });
+                    cy.viewport(viewport.width, viewport.height);
+                    cy.visit(page.url);
+
+                    cy.get('body').should('be.visible');
+                    const disableAnimations = `
+                        <style>
+                        *, *::before, *::after {
+                            -webkit-animation: none !important;
+                            -moz-animation: none !important;
+                            -o-animation: none !important;
+                            animation: none !important;
+                            -webkit-transition: none !important;
+                            -moz-transition: none !important;
+                            -o-transition: none !important;
+                            transition: none !important;
+                        }
+                        </style>
+                    `;
+                    cy.get("head").invoke("append", disableAnimations);
+                    cy.wait(2000);
+                    cy.get('.Campaign.CampaignType--slide').invoke('css', 'opacity', '0');
+
+                    cy.get('body').then($body => {
+                        if ($body.find('#hubspot-messages-iframe-container').length) {
+                            cy.get('#hubspot-messages-iframe-container').invoke('css', 'opacity', '0');
+                        }
+                        if ((viewport.name === 'Tablet' || viewport.name === 'Mobile') && $body.find('.call_cta.icon_phone[href="tel:+61390000618"]').length) {
+                            cy.get('.call_cta.icon_phone[href="tel:+61390000618"]').invoke('css', 'opacity', '0');
+                        }
+                    });
+                });
+
+                it(`should take screenshots on ${page.name}`, () => {
+                    const selectors = [
+                        '.infinite-single-article-head',
+                        '.infinite-single-article-thumbnail.infinite-media-image',
+                        '.infinite-single-article-content',
+                        '#single-social-sharex',
+                        '.saboxplugin-wrap',
+                        '#blog-bottom-case-study'
+                    ];
+
+                    selectors.forEach((selector, index) => {
+                        cy.get('body').then($body => {
+                            if ($body.find(selector).length > 0) {
+                                cy.get(selector)
+                                    .filter(':visible')
+                                    .each(($el, elIndex) => {
+                                        const elHeight = $el.height();
+                                        const elOpacity = $el.css('opacity');
+
+                                        if (elHeight > 0 && elOpacity !== '0') {
+
+                                            cy.wrap($el)
+                                                .scrollIntoView({ duration: 1000 })
+                                                .should('be.visible')
+                                                .wait(1000);
+                                        } else {
+                                            cy.log(`Skipping element ${selector} at index ${elIndex} due to height: ${elHeight} or opacity: ${elOpacity}`);
+                                        }
+                                    });
+                            } else {
+                                cy.log(`Element ${selector} not found on page`);
+                            }
+                        });
+                    });
+
+                    // After scrolling through all elements, take a Percy snapshot
+                    cy.percySnapshot(`${page.name}`, {
+                        widths: [viewport.width]
+                    });
+                });
+            });
+        });
+    });
+});

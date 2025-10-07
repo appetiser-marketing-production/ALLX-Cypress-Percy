@@ -1,0 +1,5 @@
+# Node.js dependencies
+node_modules/
+cypress/screenshots/*
+!cypress/screenshots/.gitkeep
+.env

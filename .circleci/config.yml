@@ -1,0 +1,142 @@
+version: 2.1
+orbs:
+  slack: circleci/slack@5.0
+
+jobs:
+  notify:
+    docker:
+      - image: cimg/base:current
+    steps:
+      - slack/notify:
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "@here \n:zap: Start: Argos Cypress Testing in Appetiser site."
+                  }
+                },
+                {
+                  "type": "divider"
+                }
+              ]
+            }
+          event: always
+
+  cypress-tests:
+    docker:
+      - image: cimg/node:18.20.5
+    resource_class: large
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - npm-cache-{{ checksum "package-lock.json" }}
+            - npm-cache-{{ .Branch }}
+            - npm-cache-
+      - run:
+          name: Install dependencies and setup environment
+          command: |
+            npm ci --prefer-offline --no-audit
+            sudo apt-get update && sudo apt-get install -y xvfb libnss3 libatk-bridge2.0-0 libgtk-3-0 libxss1 libasound2 libgbm-dev libxshmfence1 libdrm2 libxcomposite1 libxcursor1 libxi6 libxtst6 libnss3-dev
+            echo 'pcm.!default { type hw; card 0; }
+            ctl.!default { type hw; card 0; }' > ~/.asoundrc
+      - save_cache:
+          paths:
+            - ~/.npm
+            - node_modules
+          key: npm-cache-{{ checksum "package-lock.json" }}
+      - slack/notify:
+          event: always
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "@here \n🚧 Running: Argos Cypress tests are now executing."
+                  }
+                },
+                {
+                  "type": "divider"
+                }
+              ]
+            }
+      - run:
+          name: Run Cypress tests 
+          command: npx cypress run --runner-ui --spec "cypress/e2e/daily-test/*/*"
+      - slack/notify:
+          event: pass
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "@here \n✅ Success: ArgosCypress Testing in Appetiser site."
+                  }
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Argos Visual Testing Result",
+                        "emoji": true
+                      },
+                      "value": "argos_url",
+                      "url": "https://app.argos-ci.com/appetiser/ALLX-Cypress",
+                      "action_id": "button-action"
+                    }
+                  ]
+                },                
+                { "type": "divider" }
+              ]
+            }
+      - slack/notify:
+          event: fail
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "@here \n❌ Failed: Argos Cypress Testing in Appetiser site."
+                  }
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Argos Visual Testing Result",
+                        "emoji": true
+                      },
+                      "value": "argos_url",
+                      "url": "https://app.argos-ci.com/appetiser/ALLX-Cypress-Argos",
+                      "action_id": "button-action"
+                    }
+                  ]
+                },                
+                { "type": "divider" }
+              ]
+            }
+
+workflows:
+  cypress-workflow:
+    jobs:
+      - notify:
+          context: slack-secrets
+      - cypress-tests:
+          context: slack-secrets
+          requires:
+            - notify
