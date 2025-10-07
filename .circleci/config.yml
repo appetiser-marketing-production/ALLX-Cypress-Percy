@@ -67,9 +67,9 @@ jobs:
             }
       - run:
           name: Run Cypress tests with Percy
-          env:
-            PERCY_TOKEN: "web_673afcf23af14031fd7eb66032b1f4adaa7eb5edfa9da63f16578ae528b284ee"
-          command: npx percy exec -- cypress run --spec "cypress/e2e/daily-test/*/*"
+          command: |
+            export PERCY_TOKEN="web_673afcf23af14031fd7eb66032b1f4adaa7eb5edfa9da63f16578ae528b284ee"
+            npx percy exec -- cypress run --spec "cypress/e2e/daily-test/*/*"
       - slack/notify:
           event: pass
           custom: |
